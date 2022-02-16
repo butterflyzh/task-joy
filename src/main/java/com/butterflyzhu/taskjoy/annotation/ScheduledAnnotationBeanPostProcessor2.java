@@ -1,6 +1,7 @@
 package com.butterflyzhu.taskjoy.annotation;
 
-import com.butterflyzhu.taskjoy.config.*;
+import com.butterflyzhu.taskjoy.config.ScheduledTask2;
+import com.butterflyzhu.taskjoy.config.ScheduledTaskRegistrar2;
 import com.butterflyzhu.taskjoy.support.ScheduledMethodRunnable;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.BeansException;
@@ -8,15 +9,18 @@ import org.springframework.beans.factory.SmartInitializingSingleton;
 import org.springframework.beans.factory.config.BeanPostProcessor;
 import org.springframework.core.annotation.AnnotationUtils;
 import org.springframework.scheduling.config.CronTask;
-import org.springframework.scheduling.config.ScheduledTask;
+import org.springframework.scheduling.config.FixedDelayTask;
+import org.springframework.scheduling.config.FixedRateTask;
 import org.springframework.scheduling.support.CronTrigger;
 import org.springframework.util.Assert;
 import org.springframework.util.StringUtils;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.*;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
+import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
 public class ScheduledAnnotationBeanPostProcessor2 implements BeanPostProcessor, SmartInitializingSingleton {
@@ -84,18 +88,18 @@ public class ScheduledAnnotationBeanPostProcessor2 implements BeanPostProcessor,
                         timeZone = TimeZone.getDefault();
                     }
                 }
-                CronTask cronTask = new CronTaskAdapter(runnable, new CronTrigger(cron, timeZone), scheduled2.value(), TaskStatus.NOT_START);
+                CronTask cronTask = new CronTask(runnable, new CronTrigger(cron, timeZone));
                 this.registrar.addCronTask(cronTask);
             }
             else if (fixedDelay > 0L) {
                 long initialDelay = covertToMillis(scheduled2.initialDelay(), scheduled2.timeUnit());
                 fixedDelay = covertToMillis(scheduled2.fixedDelay(), scheduled2.timeUnit());
-                this.registrar.addFixedDelayTask(new FixedDelayTaskAdapter(runnable, fixedDelay, initialDelay, scheduled2.value(), TaskStatus.NOT_START));
+                this.registrar.addFixedDelayTask(new FixedDelayTask(runnable, fixedDelay, initialDelay));
             }
             else if (fixedRate > 0L) {
                 long initialDelay = covertToMillis(scheduled2.initialDelay(), scheduled2.timeUnit());
                 fixedRate = covertToMillis(scheduled2.fixedRate(), scheduled2.timeUnit());
-                this.registrar.addFixedRateTask(new FixedRateTaskAdapter(runnable, fixedRate, initialDelay, scheduled2.value(), TaskStatus.NOT_START));
+                this.registrar.addFixedRateTask(new FixedRateTask(runnable, fixedRate, initialDelay));
             }
         } catch (IllegalArgumentException e) {
             throw new IllegalStateException("Encountered invalid @Scheduled method '" + method.getName() + "': " + e.getMessage());

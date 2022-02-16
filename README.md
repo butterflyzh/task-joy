@@ -3,7 +3,7 @@ task-joy是仿写Spring的Task模块，简化Spring一些复杂步骤，使用�
 
 
 ##### 效果
-编写启动类型，使用`@EnableScheduling2` 注解
+编写启动类，使用`@EnableScheduling2` 注解
 ```java
 @SpringBootApplication
 @EnableScheduling2
