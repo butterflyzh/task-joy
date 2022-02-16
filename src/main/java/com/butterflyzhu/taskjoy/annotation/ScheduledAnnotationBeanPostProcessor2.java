@@ -1,9 +1,6 @@
 package com.butterflyzhu.taskjoy.annotation;
 
-import com.butterflyzhu.taskjoy.config.CronTaskAdapter;
-import com.butterflyzhu.taskjoy.config.ScheduledTask2;
-import com.butterflyzhu.taskjoy.config.ScheduledTaskRegistrar2;
-import com.butterflyzhu.taskjoy.config.TaskStatus;
+import com.butterflyzhu.taskjoy.config.*;
 import com.butterflyzhu.taskjoy.support.ScheduledMethodRunnable;
 import org.springframework.aop.framework.AopProxyUtils;
 import org.springframework.beans.BeansException;
@@ -93,12 +90,12 @@ public class ScheduledAnnotationBeanPostProcessor2 implements BeanPostProcessor,
             else if (fixedDelay > 0L) {
                 long initialDelay = covertToMillis(scheduled2.initialDelay(), scheduled2.timeUnit());
                 fixedDelay = covertToMillis(scheduled2.fixedDelay(), scheduled2.timeUnit());
-                // todo register
+                this.registrar.addFixedDelayTask(new FixedDelayTaskAdapter(runnable, fixedDelay, initialDelay, scheduled2.value(), TaskStatus.NOT_START));
             }
             else if (fixedRate > 0L) {
                 long initialDelay = covertToMillis(scheduled2.initialDelay(), scheduled2.timeUnit());
                 fixedRate = covertToMillis(scheduled2.fixedRate(), scheduled2.timeUnit());
-                // todo register
+                this.registrar.addFixedRateTask(new FixedRateTaskAdapter(runnable, fixedRate, initialDelay, scheduled2.value(), TaskStatus.NOT_START));
             }
         } catch (IllegalArgumentException e) {
             throw new IllegalStateException("Encountered invalid @Scheduled method '" + method.getName() + "': " + e.getMessage());
